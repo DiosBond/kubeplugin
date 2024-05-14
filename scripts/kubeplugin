@@ -1,11 +1,22 @@
 #!/bin/bash
 
 # Define command-line arguments
+# Command has view: bash [kubeplugin=0-st arg] [1-st agr] [2-st agr] [3-st arg]
+# Real command right:   kubectl [top] [pods] -n [demo]
+#
+# Real bash commands with right arguments: bash kubeplugin [namespace] [command] [resource type]
+# Example: bash kubeplugin demo top pods
 
-RESOURCE_TYPE=$0
+RESOURCE_TYPE=$3
+
+#$2="top"
+#$1=demo
+
+# sudo kubectl top pods -n demo
+# it is trash: sudo kubectl $2 $RESOURCE_TYPE -n $1 | tail -n +1
 
 # Retrieve resource usage statistics from Kubernetes
-kubectl $2 $RESOURCE_TYPE -n $1 | tail -n +2 | while read line
+sudo kubectl $2 $RESOURCE_TYPE -n $1 | tail -n +1 | while read line;
 do
   # Extract CPU and memory usage from the output
   NAME=$(echo $line | awk '{print $1}')
@@ -14,4 +25,5 @@ do
 
   # Output the statistics to the console
   # "Resource, Namespace, Name, CPU, Memory"
+  printf "| %-10s | %-10s | %-30s | %-10s | %-10s |\n" $RESOURCE_TYPE $1 $NAME $CPU $MEMORY
 done
